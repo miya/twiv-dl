@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>twiv-dl</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container text-center align-items-center mt-5 mb-5">
+        
+        <!--タイトル-->
+        <h1 class="mb-3">twiv-dl</h1>
+        
+        <!--説明-->
+        <p class="text-muted">Twitterの動画をダウンロードできるWebアプリ<br>下記のフォームに動画付きツイートのURLを入力してください<br class="pb-5">© 2020<a href="https://github.com/miya"> miya 😎</a> source code is <a href="https://github.com/miya/twiv-dl">here</a></p>
+        
+        <div class="input-group mb-3">
+            <!--URL入力フォーム-->
+            <input id="inputForm" type="text" class="form-control " placeholder="https://twitter.com/i/status/xxxxxxxxxxxxxxxx" aria-label="">
+            <!--ボタン-->
+            <div class="input-group-append">
+                <button type="button" id="searchBtn" class="btn btn-primary"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <!--アラート-->
+        <div id="alert" style="display: none;"></div>
+        
+        <!--動画埋め込み-->
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe id=video class="embed-responsive-item" src="" style="display: none;" allowfullscreen></iframe>
+        </div>
+        
+        <!--ダウンロードボタン-->
+        <div id=dlBtn class="mt-3" style="display: none;">
+            <p class="text-muted">ダウンロード</p>
+            <a id="small" href="" class="pr-2"></a>
+            <a id="medium" href="" class="pr-2"></a>
+            <a id="large" href=""></a>
+        </div>
+    </div>
+</body>
+<script>
+    
+    const submitBtn = document.getElementById("searchBtn");
+    submitBtn.onclick = () => {
+        const inputUrl = document.getElementById("inputForm");
+        
+        if (inputUrl.value==="") {
+            startAlert(false, "URLを入力してください。");
+        } else {
+            postData(inputUrl.value);
+        }
+        
+        inputUrl.value = "";
+    };
+    
+    const startAlert = (status, message) => {
+        const alert = document.getElementById("alert");
+        const successIcon = "<strong><i class=\"fas fa-check\"></i></strong>"
+        const failureIcon = "<strong><i class=\"fas fa-exclamation-circle\"></i></strong>"
+        const alertHtml = `<div class="alert alert-${(status)? "success":"danger"} " role="alert">${(status)? successIcon:failureIcon} ${message}</div>`;
+        alert.style.display = "block";
+        alert.innerHTML = alertHtml;
+    };
+    
+    const postData = (url) => {
+        return fetch("/", {
+            method: "POST",
+            body : JSON.stringify({inputUrl: url}),
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                const status = data["status"];
+                const message = data["message"]
+                
+                startAlert(status, message);
+                
+                if (status) {
+                    const urls_data = data["data"]
+                    
+                    const video = document.getElementById("video");
+                    video.style.display = "block";
+                    video.src = urls_data["large"]["url"];
+                    
+                    const dl_btn = document.getElementById("dlBtn");
+                    const small = document.getElementById("small");
+                    const medium = document.getElementById("medium");
+                    const large = document.getElementById("large");
+                    
+                    dl_btn.style.display = "block";
+                    small.textContent = urls_data["small"]["size"]
+                    small.href = urls_data["small"]["url"]
+                    medium.textContent = urls_data["medium"]["size"]
+                    medium.href = urls_data["medium"]["url"]
+                    large.textContent = urls_data["large"]["size"]
+                    large.href = urls_data["large"]["url"]
+                }
+            })
+    };
+</script>
+</html>
