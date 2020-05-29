@@ -94,11 +94,17 @@ def get_video_urls(url):
 
 @app.route("/favicon.ico")
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, "static"), "images/favicon.ico")
+    return send_from_directory(os.path.join(app.root_path, "static/images"), "favicon.ico")
+
+
+@app.route("/robots.txt")
+def robots():
+    return send_from_directory(os.path.join(app.root_path, "static"), "robots.txt")
 
 
 @app.route("/")
 def top():
+    print(app.root_path)
     return render_template("index.html")
 
 
@@ -114,7 +120,7 @@ def post():
 
 
 if __name__ == "__main__":
-    app.run()
+    # app.run()
 
     # debug
-    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
