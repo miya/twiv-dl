@@ -7,3 +7,8 @@ automatic_scaling:
   max_idle_instances: 1
   min_pending_latency: 3000ms
   max_pending_latency: automatic
+
+handlers:
+- url: /favicon\.ico
+  static_files: static/images/favicon.ico
+  upload: static/images/favicon\.ico
