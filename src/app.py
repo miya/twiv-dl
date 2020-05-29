@@ -92,6 +92,14 @@ def get_video_urls(url):
     return {"status": status, "message": message, "data": data}
 
 
+@app.route("/apple-touch-icon.png")
+@app.route("/apple-touch-icon-precomposed.png")
+@app.route("/apple-touch-icon-120x120.png")
+@app.route("/apple-touch-icon-120x120-precomposed.png")
+def logo():
+    return send_from_directory(os.path.join(app.root_path, "static/images"), "logo.png")
+
+
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory(os.path.join(app.root_path, "static/images"), "favicon.ico")
