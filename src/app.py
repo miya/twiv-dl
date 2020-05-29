@@ -102,9 +102,13 @@ def robots():
     return send_from_directory(os.path.join(app.root_path, "static"), "robots.txt")
 
 
+@app.route("/keybase.txt")
+def keybase():
+    return send_from_directory(os.path.join(app.root_path, "static"), "keybase.txt")
+
+
 @app.route("/")
 def top():
-    print(app.root_path)
     return render_template("index.html")
 
 
@@ -113,14 +117,13 @@ def post():
     if request.headers["Content-Type"] == "application/json":
         input_url = request.json["inputUrl"]
         video_urls = get_video_urls(input_url)
-        print(video_urls)
         return jsonify(video_urls)
     else:
         return jsonify({"status": False, "message": "何かがおかしいよ。"})
 
 
 if __name__ == "__main__":
-    # app.run()
+    app.run()
 
     # debug
-    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
