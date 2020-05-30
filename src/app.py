@@ -125,6 +125,7 @@ def post():
     if request.headers["Content-Type"] == "application/json":
         input_url = request.json["inputUrl"]
         video_urls = get_video_urls(input_url)
+        print(video_urls)
         return jsonify(video_urls)
     else:
         return jsonify({"status": False, "message": "何かがおかしいよ。"})
@@ -134,4 +135,4 @@ if __name__ == "__main__":
     app.run()
 
     # debug
-    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
