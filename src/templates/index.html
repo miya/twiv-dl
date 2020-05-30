@@ -68,26 +68,26 @@
     };
     
     const alert = (status, message) => {
-        const alert = document.getElementById("alert");
+        const alertEle = document.getElementById("alert");
         const successIcon = "<strong><i class=\"fas fa-check\"></i></strong>";
         const failureIcon = "<strong><i class=\"fas fa-exclamation-circle\"></i></strong>";
         const alertHtml = `<div class="alert alert-${(status)? "success":"danger"}" role="alert">${(status)? successIcon:failureIcon} ${message}</div>`;
-        alert.style.display = "block";
-        alert.innerHTML = alertHtml;
+        alertEle.style.display = "block";
+        alertEle.innerHTML = alertHtml;
     };
     
     const video = (url) => {
-        const video = document.getElementById("video");
+        const videoEle = document.getElementById("video");
         const videoHtml = `<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="${url}" allowfullscreen></iframe></div>`;
-        video.style.display = "block";
-        video.innerHTML = videoHtml;
+        videoEle.style.display = "block";
+        videoEle.innerHTML = videoHtml;
     };
     
     const dlBtns = (small, medium, large) => {
-        const dlBtns = document.getElementById("dlBtns");
+        const dlBtnsEle = document.getElementById("dlBtns");
         const dlBtnsHtml = `<p class="text-muted">ダウンロード</p><a href="${small["url"]}" class="pr-2">${small["size"]}</a><a href=${medium["url"]} class="pr-2">${medium["size"]}</a><a href="${large["url"]}">${large["size"]}</a>`;
-        dlBtns.style.display = "block";
-        dlBtns.innerHTML = dlBtnsHtml;
+        dlBtnsEle.style.display = "block";
+        dlBtnsEle.innerHTML = dlBtnsHtml;
     };
     
     const postData = (url) => {
