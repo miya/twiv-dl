@@ -108,6 +108,10 @@
                     video(urls_data["large"]["url"]);
                     dlBtns(urls_data["small"], urls_data["medium"], urls_data["large"]);
                 }
+            })
+            .catch(error => {
+                console.log("error: ", error);
+                alert(false, "サーバーとの通信に失敗しました");
             });
     };
 </script>
