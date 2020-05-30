@@ -91,7 +91,7 @@
     };
     
     const postData = (url) => {
-        return fetch("/", {
+        return fetch("/search", {
             method: "POST",
             body : JSON.stringify({inputUrl: url}),
             headers: {

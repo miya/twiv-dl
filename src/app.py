@@ -120,7 +120,7 @@ def top():
     return render_template("index.html")
 
 
-@app.route("/", methods=["POST"])
+@app.route("/search", methods=["POST"])
 def post():
     if request.headers["Content-Type"] == "application/json":
         input_url = request.json["inputUrl"]
@@ -135,4 +135,4 @@ if __name__ == "__main__":
     app.run()
 
     # debug
-    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
