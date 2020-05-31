@@ -2,7 +2,9 @@ import config
 import os
 import re
 import tweepy
-from flask import Flask, request, jsonify, render_template, send_from_directory
+import requests
+from io import BytesIO
+from flask import Flask, request, redirect, url_for, jsonify, render_template, send_file, send_from_directory
 
 twitter_keys = config.twitter_keys
 auth = tweepy.OAuthHandler(twitter_keys["CONSUMER_KEY"], twitter_keys["CONSUMER_SECRET"])
@@ -89,7 +91,7 @@ def get_video_urls(url):
         message = "原因不明のエラーが発生しました。"
         return {"status": status, "message": message}
 
-    return {"status": status, "message": message, "data": data}
+    return {"status": status, "message": message, "data": data, "file_name": tweet_id}
 
 
 @app.route("/apple-touch-icon.png")
@@ -131,8 +133,17 @@ def post():
         return jsonify({"status": False, "message": "何かがおかしいよ。"})
 
 
+@app.route("/download/<path:url>")
+def download(url):
+    file_name = re.findall("ext_tw_video/(.+)/pu/", url)[0] + ".mp4"
+    req = requests.get(url)
+    if req.status_code == 200:
+        video_obj = BytesIO(req.content)
+        return send_file(video_obj, attachment_filename=file_name, as_attachment=True)
+
+
 if __name__ == "__main__":
-    app.run()
+    # app.run()
 
     # debug
-    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
