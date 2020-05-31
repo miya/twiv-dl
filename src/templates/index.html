@@ -92,13 +92,13 @@
     const dlBtns = (videoData) => {
         let inputHtml = "<p class=\"text-muted\">ダウンロード</p>";
         if ("small" in videoData) {
-            inputHtml += `<a href="download/${videoData["small"]["url"]}" class="pr-2">${videoData["small"]["size"]}</a>`
+            inputHtml += `<a href="download/small" class="pr-2">${videoData["small"]["size"]}</a>`
         }
         if ("medium" in videoData) {
-            inputHtml += `<a href="download/${videoData["medium"]["url"]}" class="pr-2">${videoData["medium"]["size"]}</a>`
+            inputHtml += `<a href="download/medium" class="pr-2">${videoData["medium"]["size"]}</a>`
         }
         if ("large" in videoData) {
-            inputHtml += `<a href="download/${videoData["large"]["url"]}" class="pr-2">${videoData["large"]["size"]}</a>`
+            inputHtml += `<a href="download/large" class="pr-2">${videoData["large"]["size"]}</a>`
         }
         const dlBtnsEle = document.getElementById("dlBtns");
         dlBtnsEle.style.display = "block";

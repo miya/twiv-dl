@@ -1,10 +1,11 @@
 import config
 import os
 import re
+import uuid
 import tweepy
 import requests
 from io import BytesIO
-from flask import Flask, request, redirect, url_for, jsonify, render_template, send_file, send_from_directory
+from flask import Flask, request, session, jsonify, render_template, send_file, send_from_directory
 
 twitter_keys = config.twitter_keys
 auth = tweepy.OAuthHandler(twitter_keys["CONSUMER_KEY"], twitter_keys["CONSUMER_SECRET"])
@@ -12,6 +13,7 @@ auth.set_access_token(twitter_keys["ACCESS_KEY"], twitter_keys["ACCESS_SECRET"])
 api = tweepy.API(auth)
 
 app = Flask(__name__)
+app.secret_key = config.secret_key
 
 
 def get_tweet_id(url):
@@ -36,7 +38,7 @@ def sorted_data(data):
     return res_data
 
 
-def get_video_urls(url):
+def get_video_data(url):
     data = {}
     tweet_id = get_tweet_id(url)
 
@@ -91,7 +93,11 @@ def get_video_urls(url):
         message = "原因不明のエラーが発生しました。"
         return {"status": status, "message": message}
 
-    return {"status": status, "message": message, "data": data, "file_name": tweet_id}
+    return {"status": status, "message": message, "file_name": tweet_id, "data": data}
+
+
+def create_file_name():
+    return str(uuid.uuid4())[:8] + ".mp4"
 
 
 @app.route("/apple-touch-icon.png")
@@ -126,17 +132,24 @@ def top():
 def post():
     if request.headers["Content-Type"] == "application/json":
         input_url = request.json["inputUrl"]
-        video_urls = get_video_urls(input_url)
-        print(video_urls)
-        return jsonify(video_urls)
+        video_data = get_video_data(input_url)
+        print(video_data)
+        data = video_data["data"]
+        if "small" in data:
+            session["small_video_url"] = data["small"]["url"]
+        if "medium" in data:
+            session["medium_video_url"] = data["medium"]["url"]
+        if "large" in data:
+            session["large_video_url"] = data["large"]["url"]
+        return jsonify(video_data)
     else:
         return jsonify({"status": False, "message": "何かがおかしいよ。"})
 
 
-@app.route("/download/<path:url>")
-def download(url):
-    file_name = re.findall("ext_tw_video/(.+)/pu/", url)[0] + ".mp4"
-    req = requests.get(url)
+@app.route("/download/<string:dl_type>")
+def download(dl_type):
+    file_name = create_file_name()
+    req = requests.get(session[f"{dl_type}_video_url"])
     if req.status_code == 200:
         video_obj = BytesIO(req.content)
         return send_file(video_obj, attachment_filename=file_name, as_attachment=True)
