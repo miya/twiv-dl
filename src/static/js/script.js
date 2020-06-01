@@ -1,3 +1,4 @@
+// 検索ボタンを押した時の処理
 const submitBtn = document.getElementById("searchBtn");
 submitBtn.onclick = () => {
     const inputUrl = document.getElementById("inputForm");
@@ -9,6 +10,7 @@ submitBtn.onclick = () => {
     inputUrl.value = "";
 };
 
+// アラートを表示させる
 const alert = (status, message) => {
     const alertEle = document.getElementById("alert");
     const successIcon = "<strong><i class=\"fas fa-check\"></i></strong>";
@@ -18,6 +20,7 @@ const alert = (status, message) => {
     alertEle.innerHTML = alertHtml;
 };
 
+// 動画を表示させる
 const video = (videoData) => {
     let videoUrl = ""
     const videoEle = document.getElementById("video");
@@ -33,6 +36,8 @@ const video = (videoData) => {
     videoEle.innerHTML = videoHtml;
 };
 
+
+// ダウンロードボタンを表示させる
 const dlBtns = (videoData) => {
     let inputHtml = "<p class=\"text-muted\">ダウンロード</p>";
     if ("small" in videoData) {
@@ -49,6 +54,8 @@ const dlBtns = (videoData) => {
     dlBtnsEle.innerHTML = inputHtml;
 };
 
+
+// サーバーと通信する際の処理
 const postData = (url) => {
     return fetch("/search", {
         method: "POST",
