@@ -21,6 +21,57 @@ def get_tweet_id(url) -> str:
     return tweet_id[0] if len(tweet_id) == 1 else False
 
 
+def get_video_data(tweet_id) -> dict:
+    data = {}
+
+    try:
+        res = api.statuses_lookup(id_=[tweet_id], tweet_mode="extended")
+    except tweepy.TweepError:
+        status = False
+        message = "APIの呼び出し回数を超えました。しばらくしてからご利用ください"
+        return {"status": status, "message": message}
+
+    try:
+        # tweet_idに該当するツイートがあるか
+        if len(res)!=0:
+            response_json = res[0]._json
+
+            # 画像、動画を含むメディア付きツイートかどうか
+            if "extended_entities" in response_json:
+                media = response_json["extended_entities"]["media"][0]
+
+                # 動画付きツイートかどうか
+                if media["type"] == "video":
+                    status = True
+                    message = "動画のURLを取得しました。"
+
+                    content = [i for i in media["video_info"]["variants"] if i["content_type"] == "video/mp4"]
+                    for i in content:
+                        data.update({i["bitrate"]: i["url"]})
+
+                    data = sorted_data(data)
+
+                else:
+                    status = False
+                    message = "動画付きツイートではありません。"
+
+            else:
+                status = False
+                message = "メディア付きツイートではありません。"
+
+        else:
+            status = False
+            message = "ツイートが見つかりません。"
+
+    except Exception as e:
+        print(e)
+        status = False
+        message = "原因不明のエラーが発生しました。"
+        return {"status": status, "message": message}
+
+    return {"status": status, "message": message, "file_name": tweet_id, "data": data}
+
+
 def sorted_data(data) -> dict:
     res_data = {}
     sml = ["small", "medium", "large"]
@@ -36,64 +87,6 @@ def sorted_data(data) -> dict:
             }
         })
     return res_data
-
-
-def get_video_data(url) -> dict:
-    data = {}
-    tweet_id = get_tweet_id(url)
-
-    try:
-
-        if tweet_id:
-            try:
-                res = api.statuses_lookup(id_=[tweet_id], tweet_mode="extended")
-            except tweepy.TweepError:
-                status = False
-                message = "APIの呼び出し回数を超えました。しばらくしてからご利用ください"
-                return {"status": status, "message": message}
-
-            # tweet_idに該当するツイートがあるか
-            if len(res)!=0:
-                response_json = res[0]._json
-
-                # 画像、動画を含むメディア付きツイートかどうか
-                if "extended_entities" in response_json:
-                    media = response_json["extended_entities"]["media"][0]
-
-                    # 動画付きツイートかどうか
-                    if media["type"] == "video":
-                        status = True
-                        message = "動画のURLを取得しました。"
-
-                        content = [i for i in media["video_info"]["variants"] if i["content_type"] == "video/mp4"]
-                        for i in content:
-                            data.update({i["bitrate"]: i["url"]})
-
-                        data = sorted_data(data)
-
-                    else:
-                        status = False
-                        message = "動画付きツイートではありません。"
-
-                else:
-                    status = False
-                    message = "メディア付きツイートではありません。"
-
-            else:
-                status = False
-                message = "ツイートが見つかりません。"
-
-        else:
-            status = False
-            message = "Twitterの動画付きURLを入力してください。"
-
-    except Exception as e:
-        print(e)
-        status = False
-        message = "原因不明のエラーが発生しました。"
-        return {"status": status, "message": message}
-
-    return {"status": status, "message": message, "file_name": tweet_id, "data": data}
 
 
 def create_file_name() -> str:
@@ -132,15 +125,19 @@ def top():
 def post():
     if request.headers["Content-Type"] == "application/json":
         input_url = request.json["inputUrl"]
-        video_data = get_video_data(input_url)
+        tweet_id = get_tweet_id(input_url)
+        if tweet_id:
+            video_data = get_video_data(tweet_id)
+            data = video_data["data"]
+            if "small" in data:
+                session["small_video_url"] = data["small"]["url"]
+            if "medium" in data:
+                session["medium_video_url"] = data["medium"]["url"]
+            if "large" in data:
+                session["large_video_url"] = data["large"]["url"]
+        else:
+            video_data = {"status": False, "message": "Twitterの動画付きURLを入力してください。"}
         print(video_data)
-        data = video_data["data"]
-        if "small" in data:
-            session["small_video_url"] = data["small"]["url"]
-        if "medium" in data:
-            session["medium_video_url"] = data["medium"]["url"]
-        if "large" in data:
-            session["large_video_url"] = data["large"]["url"]
         return jsonify(video_data)
     else:
         return jsonify({"status": False, "message": "何かがおかしいよ。"})
