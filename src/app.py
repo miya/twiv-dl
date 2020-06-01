@@ -81,7 +81,7 @@ def get_video_data(tweet_id) -> dict:
         message = "原因不明のエラーが発生しました。"
         return {"status": status, "message": message}
 
-    return {"status": status, "message": message, "file_name": tweet_id, "data": data}
+    return {"status": status, "message": message, "data": data}
 
 
 def sorted_data(data) -> dict:
