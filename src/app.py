@@ -17,11 +17,23 @@ app.secret_key = config.secret_key
 
 
 def get_tweet_id(url) -> str:
+    """
+    フロント側で入力されたURLからtweet_idを取得する
+
+    Args:
+        url: フロントから入力さ得れたURL
+    """
     tweet_id = re.findall("https://twitter.com/.+/status/(\d+)/?", url)
     return tweet_id[0] if len(tweet_id) == 1 else False
 
 
 def get_video_data(tweet_id) -> dict:
+    """
+    動画データ（ツイートの情報を取得したか、ステータスメッセージ、動画URL）を返す
+
+    Arg:
+        tweet_id: ツイートの識別番号
+    """
     data = {}
 
     try:
@@ -73,6 +85,13 @@ def get_video_data(tweet_id) -> dict:
 
 
 def sorted_data(data) -> dict:
+    """
+    ビットレートの高さでソートして
+    small, medium, large を振り分ける
+
+    Arg:
+        data(dict):
+    """
     res_data = {}
     sml = ["small", "medium", "large"]
     keys = sorted(data)
@@ -90,6 +109,9 @@ def sorted_data(data) -> dict:
 
 
 def create_file_name() -> str:
+    """
+    UUIDを用いてランダムな文字列でファイル名を生成
+    """
     return str(uuid.uuid4())[:8] + ".mp4"
 
 
@@ -153,7 +175,7 @@ def download(dl_type):
 
 
 if __name__ == "__main__":
-    app.run()
+    # app.run()
 
     # debug
-    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
