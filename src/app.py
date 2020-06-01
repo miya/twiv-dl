@@ -16,12 +16,12 @@ app = Flask(__name__)
 app.secret_key = config.secret_key
 
 
-def get_tweet_id(url):
+def get_tweet_id(url) -> str:
     tweet_id = re.findall("https://twitter.com/.+/status/(\d+)/?", url)
     return tweet_id[0] if len(tweet_id) == 1 else False
 
 
-def sorted_data(data):
+def sorted_data(data) -> dict:
     res_data = {}
     sml = ["small", "medium", "large"]
     keys = sorted(data)
@@ -38,7 +38,7 @@ def sorted_data(data):
     return res_data
 
 
-def get_video_data(url):
+def get_video_data(url) -> dict:
     data = {}
     tweet_id = get_tweet_id(url)
 
@@ -96,7 +96,7 @@ def get_video_data(url):
     return {"status": status, "message": message, "file_name": tweet_id, "data": data}
 
 
-def create_file_name():
+def create_file_name() -> str:
     return str(uuid.uuid4())[:8] + ".mp4"
 
 
@@ -156,7 +156,7 @@ def download(dl_type):
 
 
 if __name__ == "__main__":
-    # app.run()
+    app.run()
 
     # debug
-    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
