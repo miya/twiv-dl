@@ -20,7 +20,7 @@ def get_tweet_id(url) -> str:
     """
     フロント側で入力されたURLからtweet_idを取得する
 
-    Args:
+    Arg:
         url: フロントから入力さ得れたURL
     """
     tweet_id = re.findall("https://twitter.com/.+/status/(\d+)/?", url)
@@ -87,7 +87,7 @@ def get_video_data(tweet_id) -> dict:
 def sorted_data(data) -> dict:
     """
     ビットレートの高さでソートして
-    small, medium, large を振り分ける
+    small, medium, large に振り分ける
 
     Arg:
         data(dict):
@@ -174,8 +174,14 @@ def download(dl_type):
         return send_file(video_obj, attachment_filename=file_name, as_attachment=True)
 
 
+@app.errorhandler(404)
+def page_not_found(error):
+    print(error)
+    return render_template("404.html")
+
+
 if __name__ == "__main__":
-    # app.run()
+    app.run()
 
     # debug
-    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
