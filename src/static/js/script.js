@@ -10,15 +10,24 @@ submitBtn.onclick = () => {
     inputUrl.value = "";
 };
 
+
 // アラートを表示させる
 const alert = (status, message) => {
     const alertEle = document.getElementById("alert");
-    const successIcon = "<strong><i class=\"fas fa-check\"></i></strong>";
-    const failureIcon = "<strong><i class=\"fas fa-exclamation-circle\"></i></strong>";
-    const alertHtml = `<div class="alert alert-${(status)? "success":"danger"}" role="alert">${(status)? successIcon:failureIcon} ${message}</div>`;
+    let alert_icon
+    let alert_color
+    if (status) {
+        alert_icon = "<strong><i class=\"fas fa-check\"></i></strong>";
+        alert_color = "success"
+    } else {
+        alert_icon =  "<strong><i class=\"fas fa-exclamation-circle\"></i></strong>";
+        alert_color = "danger"
+    }
+    const alertHtml = `<div class="alert alert-${alert_color}" role="alert">${alert_icon} ${message}</div>`;
     alertEle.style.display = "block";
     alertEle.innerHTML = alertHtml;
 };
+
 
 // 動画を表示させる
 const video = (videoData) => {
@@ -66,7 +75,8 @@ const postData = (url) => {
         .then(data => {
             const status = data["status"];
             const message = data["message"];
-            alert(status, message);
+            const description = data["description"];
+            alert(status, message, description);
             if (status) {
                 const videoData = data["data"];
                 video(videoData);
