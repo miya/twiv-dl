@@ -93,15 +93,14 @@ def sorted_data(data) -> dict:
         data(dict):
     """
     res_data = {}
-    sml = ["small", "medium", "large"]
+    size_label = ["small", "medium", "large"]
     keys = sorted(data)
-    for i, j in zip(keys, sml):
-        new_key = j
-        size_int = re.findall("vid/(.+)/", data[i])[0]
-        url = data[i]
+    for i, j in zip(size_label, keys):
+        size = re.findall("vid/(.+)/", data[j])[0]
+        url = data[j]
         res_data.update({
-            new_key: {
-                "size": size_int,
+            i: {
+                "size": size,
                 "url": url
             }
         })
@@ -177,7 +176,7 @@ def download(dl_type):
 @app.errorhandler(404)
 def page_not_found(error):
     print(error)
-    return render_template("404.html")
+    return render_template("404.html"), 404
 
 
 if __name__ == "__main__":
