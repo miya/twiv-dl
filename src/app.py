@@ -151,11 +151,11 @@ def page_not_found(error):
 
 @app.route("/search", methods=["POST"])
 def post():
-    session.clear()
     if request.headers["Content-Type"] == "application/json":
         input_url = request.json["inputUrl"]
         tweet_id = get_tweet_id(input_url)
         if tweet_id:
+            session.clear()
             video_data = get_video_data(tweet_id)
             data = video_data["data"]
             if "small" in data:
