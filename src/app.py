@@ -23,8 +23,9 @@ def get_tweet_id(url) -> str:
     Arg:
         url: フロントから入力さ得れたURL
     """
-    tweet_id = re.findall("https://twitter.com/.+/status/(\d+)/?", url)
-    return tweet_id[0] if len(tweet_id) == 1 else False
+    tweet_id = re.findall("https://twitter\.com/.+?/status/(\d+)", url)
+    if len(tweet_id) != 0:
+        return tweet_id[0]
 
 
 def get_video_data(tweet_id) -> dict:
@@ -46,11 +47,11 @@ def get_video_data(tweet_id) -> dict:
     try:
         # tweet_idに該当するツイートがあるか
         if len(res)!=0:
-            response_json = res[0]._json
+            response_json_dic = res[0]._json
 
             # 画像、動画を含むメディア付きツイートかどうか
-            if "extended_entities" in response_json:
-                media = response_json["extended_entities"]["media"][0]
+            if "extended_entities" in response_json_dic:
+                media = response_json_dic["extended_entities"]["media"][0]
 
                 # 動画付きツイートかどうか
                 if media["type"] == "video":
@@ -142,6 +143,12 @@ def top():
     return render_template("index.html")
 
 
+@app.errorhandler(404)
+def page_not_found(error):
+    print(error)
+    return render_template("404.html"), 404
+
+
 @app.route("/search", methods=["POST"])
 def post():
     if request.headers["Content-Type"] == "application/json":
@@ -171,12 +178,6 @@ def download(dl_type):
     if req.status_code == 200:
         video_obj = BytesIO(req.content)
         return send_file(video_obj, attachment_filename=file_name, as_attachment=True)
-
-
-@app.errorhandler(404)
-def page_not_found(error):
-    print(error)
-    return render_template("404.html"), 404
 
 
 if __name__ == "__main__":
