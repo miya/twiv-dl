@@ -14,16 +14,16 @@ submitBtn.onclick = () => {
 // アラートを表示させる
 const alert = (status, message) => {
     const alertEle = document.getElementById("alert");
-    let alert_icon
-    let alert_color
+    let alertIcon;
+    let alertColor;
     if (status) {
-        alert_icon = "<strong><i class=\"fas fa-check\"></i></strong>";
-        alert_color = "success"
+        alertIcon = "<strong><i class=\"fas fa-check\"></i></strong>";
+        alertColor = "success"
     } else {
-        alert_icon =  "<strong><i class=\"fas fa-exclamation-circle\"></i></strong>";
-        alert_color = "danger"
+        alertIcon =  "<strong><i class=\"fas fa-exclamation-circle\"></i></strong>";
+        alertColor = "danger";
     }
-    const alertHtml = `<div class="alert alert-${alert_color}" role="alert">${alert_icon} ${message}</div>`;
+    const alertHtml = `<div class="alert alert-${alertColor}" role="alert">${alertIcon} ${message}</div>`;
     alertEle.style.display = "block";
     alertEle.innerHTML = alertHtml;
 };
@@ -75,8 +75,7 @@ const postData = (url) => {
         .then(data => {
             const status = data["status"];
             const message = data["message"];
-            const description = data["description"];
-            alert(status, message, description);
+            alert(status, message);
             if (status) {
                 const videoData = data["data"];
                 video(videoData);
