@@ -46,7 +46,7 @@ def get_video_data(tweet_id) -> dict:
 
     try:
         # tweet_idに該当するツイートがあるか
-        if len(res)!=0:
+        if len(res) != 0:
             response_json_dic = res[0]._json
 
             # 画像、動画を含むメディア付きツイートかどうか
@@ -151,6 +151,7 @@ def page_not_found(error):
 
 @app.route("/search", methods=["POST"])
 def post():
+    session.clear()
     if request.headers["Content-Type"] == "application/json":
         input_url = request.json["inputUrl"]
         tweet_id = get_tweet_id(input_url)
@@ -158,11 +159,11 @@ def post():
             video_data = get_video_data(tweet_id)
             data = video_data["data"]
             if "small" in data:
-                session["small_video_url"] = data["small"]["url"]
+                session["small"] = data["small"]["url"]
             if "medium" in data:
-                session["medium_video_url"] = data["medium"]["url"]
+                session["medium"] = data["medium"]["url"]
             if "large" in data:
-                session["large_video_url"] = data["large"]["url"]
+                session["large"] = data["large"]["url"]
         else:
             video_data = {"status": False, "message": "Twitterの動画付きURLを入力してください。"}
         print(video_data)
@@ -174,7 +175,7 @@ def post():
 @app.route("/download/<string:dl_type>")
 def download(dl_type):
     file_name = create_file_name()
-    req = requests.get(session[f"{dl_type}_video_url"])
+    req = requests.get(session[dl_type])
     if req.status_code == 200:
         video_obj = BytesIO(req.content)
         return send_file(video_obj, attachment_filename=file_name, as_attachment=True)
