@@ -13,7 +13,7 @@ auth.set_access_token(twitter_keys["ACCESS_KEY"], twitter_keys["ACCESS_SECRET"])
 api = tweepy.API(auth)
 
 app = Flask(__name__)
-app.secret_key = config.secret_key
+app.secret_key = config.FLASK_SECRET_KEY
 
 
 def get_tweet_id(url) -> str:
