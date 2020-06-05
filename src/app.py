@@ -157,13 +157,15 @@ def post():
         if tweet_id:
             session.clear()
             video_data = get_video_data(tweet_id)
-            data = video_data["data"]
-            if "small" in data:
-                session["small"] = data["small"]["url"]
-            if "medium" in data:
-                session["medium"] = data["medium"]["url"]
-            if "large" in data:
-                session["large"] = data["large"]["url"]
+
+            if video_data["status"]:
+                data = video_data["data"]
+                if "small" in data:
+                    session["small"] = data["small"]["url"]
+                if "medium" in data:
+                    session["medium"] = data["medium"]["url"]
+                if "large" in data:
+                    session["large"] = data["large"]["url"]
         else:
             video_data = {"status": False, "message": "Twitterの動画付きURLを入力してください。"}
         print(video_data)
