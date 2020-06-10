@@ -58,9 +58,10 @@ def get_video_data(tweet_id) -> dict:
                     status = True
                     message = "動画のURLを取得しました。"
 
-                    content = [i for i in media["video_info"]["variants"] if i["content_type"] == "video/mp4"]
-                    for i in content:
-                        data.update({i["bitrate"]: i["url"]})
+                    # ビットレートとURLを取り出して辞書に追加
+                    for i in media["video_info"]["variants"]:
+                        if i["content_type"] == "video/mp4":
+                            data.update({i["bitrate"]: i["url"]})
 
                     data = sorted_data(data)
 
