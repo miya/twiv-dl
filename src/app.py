@@ -95,7 +95,7 @@ def sorted_data(data) -> dict:
         session[size_label[i]] = video_url
         sizes.append(re.findall("vid/(.+)/", video_url)[0])
 
-    return {"display_video": data[sorted_bitrate[-1]], "size": sizes}
+    return {"display_video_url": data[sorted_bitrate[-1]], "size": sizes}
 
 
 def create_file_name() -> str:

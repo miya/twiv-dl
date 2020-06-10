@@ -32,7 +32,7 @@ const alert = (status, message) => {
 // 動画を表示させる
 const video = (videoData) => {
     const videoEle = document.getElementById("video");
-    const videoUrl = videoData["display_video"];
+    const videoUrl = videoData["display_video_url"];
     const videoHtml = `<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="${videoUrl}" allowfullscreen></iframe></div>`;
     videoEle.style.display = "block";
     videoEle.innerHTML = videoHtml;
