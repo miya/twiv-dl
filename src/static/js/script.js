@@ -39,11 +39,11 @@ const video = (displayVideoUrl) => {
 
 
 // ダウンロードボタンを表示させる
-const dlBtns = (sizes) => {
+const dlBtns = (downloadVideoSizes) => {
     let inputHtml = '<p class="text-muted">ダウンロード</p>';
     const sizeLabel = ["small", "medium", "large"];
-    for (let i = 0; i<sizes.length; i++) {
-         inputHtml += `<a href="download/${sizeLabel[i]}" class="pr-2">${sizes[i]}</a>`
+    for (let i = 0; i<downloadVideoSizes.length; i++) {
+         inputHtml += `<a href="download/${sizeLabel[i]}" class="pr-2">${downloadVideoSizes[i]}</a>`
     }
     const dlBtnsEle = document.getElementById("dlBtns");
     dlBtnsEle.style.display = "block";
@@ -65,9 +65,9 @@ const postData = (url) => {
             alert(status, message);
             if (status) {
                 const displayVideoUrl = videoData["display_video_url"];
-                const sizes = videoData["sizes"];
+                const downloadVideoSizes = videoData["download_video_sizes"];
                 video(displayVideoUrl);
-                dlBtns(sizes);
+                dlBtns(downloadVideoSizes);
             }
         })
         .catch(error => {

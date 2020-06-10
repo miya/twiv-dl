@@ -59,9 +59,9 @@ def get_video_data(tweet_id) -> dict:
                     for i in media["video_info"]["variants"]:
                         if i["content_type"] == "video/mp4":
                             video_urls.update({i["bitrate"]: i["url"]})
-                    display_video_url, sizes = sorted_data(video_urls)
+                    display_video_url, download_video_sizes = sorted_data(video_urls)
 
-                    return {"status": True, "message": "動画のURLを取得しました。", "display_video_url": display_video_url, "sizes": sizes}
+                    return {"status": True, "message": "動画のURLを取得しました。", "display_video_url": display_video_url, "download_video_sizes": download_video_sizes}
 
                 else:
                     return {"status": False, "message": "動画付きツイートではありません。"}
@@ -150,8 +150,6 @@ def post():
         else:
             video_data = {"status": False, "message": "Twitterの動画付きURLを入力してください。"}
         return jsonify(video_data)
-    else:
-        return jsonify({"status": False, "message": "何かがおかしいよ。"})
 
 
 @app.route("/download/<string:dl_type>")
@@ -164,7 +162,7 @@ def download(dl_type):
 
 
 if __name__ == "__main__":
-    app.run()
+    # app.run()
 
     # debug
-    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
