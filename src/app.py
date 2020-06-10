@@ -55,8 +55,6 @@ def get_video_data(tweet_id) -> dict:
 
                 # 動画付きツイートかどうか
                 if media["type"] == "video":
-                    status = True
-                    message = "動画のURLを取得しました。"
 
                     # ビットレートとURLを取り出して辞書に追加
                     for i in media["video_info"]["variants"]:
@@ -64,35 +62,26 @@ def get_video_data(tweet_id) -> dict:
                             data.update({i["bitrate"]: i["url"]})
 
                     data = sorted_data(data)
+                    return {"status": True, "message": "動画のURLを取得しました。", "data": data}
 
                 else:
-                    status = False
-                    message = "動画付きツイートではありません。"
+                    return {"status": False, "message": "動画付きツイートではありません。"}
 
             else:
-                status = False
-                message = "動画付きツイートではありません。"
+                return {"status": False, "message": "動画付きツイートではありません。"}
 
         else:
-            status = False
-            message = "ツイートが見つかりません。"
+            return {"status": False, "message": "ツイートが見つかりませんでした。"}
 
     except Exception as e:
         print(e)
-        status = False
-        message = "原因不明のエラーが発生しました。"
-        return {"status": status, "message": message}
-
-    return {"status": status, "message": message, "data": data}
+        return {"status": False, "message": "サーバー内でエラーが発生しました。"}
 
 
 def sorted_data(data) -> dict:
     """
-    ビットレートの高さでソートして
-    small, medium, large に振り分け、動画のURLをセッションに格納
-
-    フロントで表示させる動画URLとダウンロードできる
-    動画サイズ（480x270など）を返す
+    ビットレートの高さでソートしてsmall, medium, large に振り分け、動画のURLをセッションに格納
+    フロントで表示させる動画URLとダウンロードできる動画サイズ（480x270など）を返す
 
     Arg:
         data(dict):
