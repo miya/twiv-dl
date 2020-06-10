@@ -30,22 +30,20 @@ const alert = (status, message) => {
 
 
 // 動画を表示させる
-const video = (videoData) => {
+const video = (displayVideoUrl) => {
     const videoEle = document.getElementById("video");
-    const videoUrl = videoData["display_video_url"];
-    const videoHtml = `<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="${videoUrl}" allowfullscreen></iframe></div>`;
+    const videoHtml = `<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="${displayVideoUrl}" allowfullscreen></iframe></div>`;
     videoEle.style.display = "block";
     videoEle.innerHTML = videoHtml;
 };
 
 
 // ダウンロードボタンを表示させる
-const dlBtns = (videoData) => {
-    let inputHtml = "<p class=\"text-muted\">ダウンロード</p>";
-    const videoSize = videoData["size"];
+const dlBtns = (sizes) => {
+    let inputHtml = '<p class="text-muted">ダウンロード</p>';
     const sizeLabel = ["small", "medium", "large"];
-    for (let i = 0; i<videoSize.length; i++) {
-         inputHtml += `<a href="download/${sizeLabel[i]}" class="pr-2">${videoSize[i]}</a>`
+    for (let i = 0; i<sizes.length; i++) {
+         inputHtml += `<a href="download/${sizeLabel[i]}" class="pr-2">${sizes[i]}</a>`
     }
     const dlBtnsEle = document.getElementById("dlBtns");
     dlBtnsEle.style.display = "block";
@@ -61,14 +59,15 @@ const postData = (url) => {
         headers: {"Content-Type": "application/json"}
     })
         .then(response => response.json())
-        .then(data => {
-            const status = data["status"];
-            const message = data["message"];
+        .then(videoData => {
+            const status = videoData["status"];
+            const message = videoData["message"];
             alert(status, message);
             if (status) {
-                const videoData = data["data"];
-                video(videoData);
-                dlBtns(videoData);
+                const displayVideoUrl = videoData["display_video_url"];
+                const sizes = videoData["sizes"];
+                video(displayVideoUrl);
+                dlBtns(sizes);
             }
         })
         .catch(error => {

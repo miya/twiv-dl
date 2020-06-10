@@ -35,8 +35,6 @@ def get_video_data(tweet_id) -> dict:
     Arg:
         tweet_id: ツイートの識別番号
     """
-    data = {}
-
     try:
         res = api.statuses_lookup(id_=[tweet_id], tweet_mode="extended")
     except tweepy.TweepError:
@@ -57,12 +55,13 @@ def get_video_data(tweet_id) -> dict:
                 if media["type"] == "video":
 
                     # ビットレートとURLを取り出して辞書に追加
+                    video_urls = {}
                     for i in media["video_info"]["variants"]:
                         if i["content_type"] == "video/mp4":
-                            data.update({i["bitrate"]: i["url"]})
+                            video_urls.update({i["bitrate"]: i["url"]})
+                    display_video_url, sizes = sorted_data(video_urls)
 
-                    data = sorted_data(data)
-                    return {"status": True, "message": "動画のURLを取得しました。", "data": data}
+                    return {"status": True, "message": "動画のURLを取得しました。", "display_video_url": display_video_url, "sizes": sizes}
 
                 else:
                     return {"status": False, "message": "動画付きツイートではありません。"}
@@ -78,7 +77,7 @@ def get_video_data(tweet_id) -> dict:
         return {"status": False, "message": "サーバー内でエラーが発生しました。"}
 
 
-def sorted_data(data) -> dict:
+def sorted_data(data) -> tuple:
     """
     ビットレートの高さでソートしてsmall, medium, large に振り分け、動画のURLをセッションに格納
     フロントで表示させる動画URLとダウンロードできる動画サイズ（480x270など）を返す
@@ -95,7 +94,7 @@ def sorted_data(data) -> dict:
         session[size_label[i]] = video_url
         sizes.append(re.findall("vid/(.+)/", video_url)[0])
 
-    return {"display_video_url": data[sorted_bitrate[-1]], "size": sizes}
+    return data[sorted_bitrate[-1]], sizes
 
 
 def create_file_name() -> str:
@@ -147,9 +146,9 @@ def post():
         if tweet_id:
             session.clear()
             video_data = get_video_data(tweet_id)
+            print(video_data)
         else:
             video_data = {"status": False, "message": "Twitterの動画付きURLを入力してください。"}
-        print(video_data)
         return jsonify(video_data)
     else:
         return jsonify({"status": False, "message": "何かがおかしいよ。"})
