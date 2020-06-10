@@ -71,7 +71,7 @@ def get_video_data(tweet_id) -> dict:
 
             else:
                 status = False
-                message = "メディア付きツイートではありません。"
+                message = "動画付きツイートではありません。"
 
         else:
             status = False
@@ -180,4 +180,3 @@ if __name__ == "__main__":
 
     # debug
     # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
-o
