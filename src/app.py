@@ -38,9 +38,7 @@ def get_video_data(tweet_id) -> dict:
     try:
         res = api.statuses_lookup(id_=[tweet_id], tweet_mode="extended")
     except tweepy.TweepError:
-        status = False
-        message = "APIの呼び出し回数を超えました。しばらくしてからご利用ください"
-        return {"status": status, "message": message}
+        return {"status": False, "message": "APIの呼び出し回数を超えました。しばらくしてからご利用ください。"}
 
     try:
         # tweet_idに該当するツイートがあるか
@@ -162,7 +160,7 @@ def download(dl_type):
 
 
 if __name__ == "__main__":
-    # app.run()
+    app.run()
 
     # debug
-    app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+    # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
