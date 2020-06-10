@@ -89,24 +89,24 @@ def get_video_data(tweet_id) -> dict:
 def sorted_data(data) -> dict:
     """
     ビットレートの高さでソートして
-    small, medium, large に振り分ける
+    small, medium, large に振り分け、動画のURLをセッションに格納
+
+    フロントで表示させる動画URLとダウンロードできる
+    動画サイズ（480x270など）を返す
 
     Arg:
         data(dict):
     """
-    res_data = {}
     size_label = ["small", "medium", "large"]
-    keys = sorted(data)
-    for i, j in zip(size_label, keys):
-        size = re.findall("vid/(.+)/", data[j])[0]
-        url = data[j]
-        res_data.update({
-            i: {
-                "size": size,
-                "url": url
-            }
-        })
-    return res_data
+    sorted_bitrate = sorted(data)
+    sizes = []
+
+    for i in range(len(data)):
+        video_url = data[sorted_bitrate[i]]
+        session[size_label[i]] = video_url
+        sizes.append(re.findall("vid/(.+)/", video_url)[0])
+
+    return {"display_video": data[sorted_bitrate[-1]], "size": sizes}
 
 
 def create_file_name() -> str:
@@ -158,15 +158,6 @@ def post():
         if tweet_id:
             session.clear()
             video_data = get_video_data(tweet_id)
-
-            if video_data["status"]:
-                data = video_data["data"]
-                if "small" in data:
-                    session["small"] = data["small"]["url"]
-                if "medium" in data:
-                    session["medium"] = data["medium"]["url"]
-                if "large" in data:
-                    session["large"] = data["large"]["url"]
         else:
             video_data = {"status": False, "message": "Twitterの動画付きURLを入力してください。"}
         print(video_data)
@@ -189,3 +180,4 @@ if __name__ == "__main__":
 
     # debug
     # app.run(host="0.0.0.0", port=8080, threaded=True, debug=True)
+o

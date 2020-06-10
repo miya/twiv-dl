@@ -31,15 +31,8 @@ const alert = (status, message) => {
 
 // 動画を表示させる
 const video = (videoData) => {
-    let videoUrl = ""
     const videoEle = document.getElementById("video");
-    if ("large" in videoData) {
-        videoUrl = videoData["large"]["url"]
-    } else if ("medium" in videoData) {
-        videoUrl = videoData["medium"]["url"]
-    } else if ("small" in videoData) {
-        videoUrl = videoData["small"]["url"]
-    }
+    const videoUrl = videoData["display_video"];
     const videoHtml = `<div class="embed-responsive embed-responsive-16by9"><iframe class="embed-responsive-item" src="${videoUrl}" allowfullscreen></iframe></div>`;
     videoEle.style.display = "block";
     videoEle.innerHTML = videoHtml;
@@ -49,14 +42,10 @@ const video = (videoData) => {
 // ダウンロードボタンを表示させる
 const dlBtns = (videoData) => {
     let inputHtml = "<p class=\"text-muted\">ダウンロード</p>";
-    if ("small" in videoData) {
-        inputHtml += `<a href="download/small" class="pr-2">${videoData["small"]["size"]}</a>`
-    }
-    if ("medium" in videoData) {
-        inputHtml += `<a href="download/medium" class="pr-2">${videoData["medium"]["size"]}</a>`
-    }
-    if ("large" in videoData) {
-        inputHtml += `<a href="download/large" class="pr-2">${videoData["large"]["size"]}</a>`
+    const videoSize = videoData["size"];
+    const sizeLabel = ["small", "medium", "large"];
+    for (let i = 0; i<videoSize.length; i++) {
+         inputHtml += `<a href="download/${sizeLabel[i]}" class="pr-2">${videoSize[i]}</a>`
     }
     const dlBtnsEle = document.getElementById("dlBtns");
     dlBtnsEle.style.display = "block";
