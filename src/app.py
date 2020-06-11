@@ -2,15 +2,18 @@ import config
 import os
 import re
 import uuid
-import tweepy
 import requests
 from io import BytesIO
+from twython import Twython, TwythonError, TwythonAuthError, TwythonRateLimitError
 from flask import Flask, request, session, jsonify, render_template, send_file, send_from_directory
 
 twitter_keys = config.twitter_keys
-auth = tweepy.OAuthHandler(twitter_keys["CONSUMER_KEY"], twitter_keys["CONSUMER_SECRET"])
-auth.set_access_token(twitter_keys["ACCESS_KEY"], twitter_keys["ACCESS_SECRET"])
-api = tweepy.API(auth)
+twitter = Twython(
+    twitter_keys["CONSUMER_KEY"],
+    twitter_keys["CONSUMER_SECRET"],
+    twitter_keys["ACCESS_KEY"],
+    twitter_keys["ACCESS_SECRET"]
+)
 
 app = Flask(__name__)
 app.secret_key = config.FLASK_SECRET_KEY
@@ -40,52 +43,51 @@ def get_video_data(tweet_id):
         tweet_id: ツイートID
     """
     try:
-        res = api.statuses_lookup(id_=[tweet_id], tweet_mode="extended")
-    except tweepy.TweepError:
-        return {"status": False, "message": "APIの呼び出し回数を超えました。しばらくしてからご利用ください。"}
+        tweet_data = twitter.lookup_status(id=tweet_id, include_entities=True)
+    except TwythonAuthError as e:
+        print(e)
+        return {"status": False, "message": "アプリケーションの認証に何らかの問題があります。"}
+    except TwythonRateLimitError as e:
+        print(e)
+        return {"status": False, "message": "APIの呼び出し回数制限を超えました。時間をおいてからやり直してください。"}
+    except TwythonError as e:
+        print(e)
+        return {"status": False, "message": "エラーが発生しました"}
 
-    try:
-        # tweet_idに該当するツイートがあるか
-        if len(res) != 0:
-            response_json_dic = res[0]._json
+    if len(tweet_data) > 0:
+        # 動画、画像を含むメディア付きツイートかどうか
+        if "extended_entities" in tweet_data[0]:
+            media = tweet_data[0]["extended_entities"]["media"][0]
 
-            # 画像、動画を含むメディア付きツイートかどうか
-            if "extended_entities" in response_json_dic:
-                media = response_json_dic["extended_entities"]["media"][0]
+            # 動画付きツイートかどうか
+            if media["type"] == "video":
 
-                # 動画付きツイートかどうか
-                if media["type"] == "video":
+                # ビットレートとURLを取り出して辞書に追加
+                video = {}
+                for i in media["video_info"]["variants"]:
+                    if i["content_type"] == "video/mp4":
+                        video.update({i["bitrate"]: i["url"]})
 
-                    # ビットレートとURLを取り出して辞書に追加
-                    video_urls = {}
-                    for i in media["video_info"]["variants"]:
-                        if i["content_type"] == "video/mp4":
-                            video_urls.update({i["bitrate"]: i["url"]})
+                display_video_url, download_video_sizes = sorted_video(video)
 
-                    display_video_url, download_video_sizes = sorted_data(video_urls)
-
-                    return {
-                        "status": True,
-                        "message": "動画のURLを取得しました。",
-                        "display_video_url": display_video_url,
-                        "download_video_sizes": download_video_sizes
-                    }
-
-                else:
-                    return {"status": False, "message": "動画付きツイートではありません。"}
+                return {
+                    "status": True,
+                    "message": "動画のURLを取得しました。",
+                    "display_video_url": display_video_url,
+                    "download_video_sizes": download_video_sizes
+                }
 
             else:
                 return {"status": False, "message": "動画付きツイートではありません。"}
 
         else:
-            return {"status": False, "message": "ツイートが見つかりませんでした。"}
+            return {"status": False, "message": "動画付きツイートではありません。"}
 
-    except Exception as e:
-        print(e)
-        return {"status": False, "message": "サーバー内でエラーが発生しました。"}
+    else:
+        return {"status": False, "message": "ツイートが見つかりませんでした。"}
 
 
-def sorted_data(data):
+def sorted_video(video):
     """
     ビットレートの高さでソートしてsmall, medium, large に振り分け、動画のURLをセッションに格納
     フロントで表示させる動画URLとダウンロードできる動画サイズ（480x270）を返す
@@ -94,15 +96,15 @@ def sorted_data(data):
         data(dict):
     """
     size_label = ["small", "medium", "large"]
-    sorted_bitrate = sorted(data)
+    sorted_bitrate = sorted(video)
     sizes = []
 
-    for i in range(len(data)):
-        video_url = data[sorted_bitrate[i]]
+    for i in range(len(video)):
+        video_url = video[sorted_bitrate[i]]
         session[size_label[i]] = video_url
         sizes.append(re.findall("vid/(.+)/", video_url)[0])
 
-    return data[sorted_bitrate[-1]], sizes
+    return video[sorted_bitrate[-1]], sizes
 
 
 def create_file_name():
