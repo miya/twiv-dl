@@ -54,7 +54,9 @@ def get_video_data(tweet_id):
         print(e)
         return {"status": False, "message": "エラーが発生しました"}
 
+    # ツイートが存在しているかどうか
     if len(tweet_data) > 0:
+
         # 動画、画像を含むメディア付きツイートかどうか
         if "extended_entities" in tweet_data[0]:
             media = tweet_data[0]["extended_entities"]["media"][0]
