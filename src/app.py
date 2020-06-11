@@ -16,7 +16,7 @@ app = Flask(__name__)
 app.secret_key = config.FLASK_SECRET_KEY
 
 
-def get_tweet_id(url) -> str:
+def get_tweet_id(url):
     """
     フロント側で入力されたURLからtweet_idを取得する
 
@@ -28,7 +28,7 @@ def get_tweet_id(url) -> str:
         return tweet_id[0]
 
 
-def get_video_data(tweet_id) -> dict:
+def get_video_data(tweet_id):
     """
     動画データ（ツイートの情報を取得したか、ステータスメッセージ、動画URL）を返す
 
@@ -75,7 +75,7 @@ def get_video_data(tweet_id) -> dict:
         return {"status": False, "message": "サーバー内でエラーが発生しました。"}
 
 
-def sorted_data(data) -> tuple:
+def sorted_data(data):
     """
     ビットレートの高さでソートしてsmall, medium, large に振り分け、動画のURLをセッションに格納
     フロントで表示させる動画URLとダウンロードできる動画サイズ（480x270など）を返す
@@ -95,7 +95,7 @@ def sorted_data(data) -> tuple:
     return data[sorted_bitrate[-1]], sizes
 
 
-def create_file_name() -> str:
+def create_file_name():
     """
     UUIDを用いてランダムな文字列でファイル名を生成
     """
