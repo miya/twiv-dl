@@ -18,10 +18,10 @@ app.secret_key = config.FLASK_SECRET_KEY
 
 def get_tweet_id(url):
     """
-    フロント側で入力されたURLからtweet_idを取得する
+    フロントで入力されたURLから正規表現を用いてツイートIDを抽出する
 
     Arg:
-        url: フロントから入力さ得れたURL
+        url: フロントから入力されたURL
     """
     tweet_id = re.findall("https://twitter\.com/.+?/status/(\d+)", url)
     if len(tweet_id) != 0:
@@ -30,10 +30,14 @@ def get_tweet_id(url):
 
 def get_video_data(tweet_id):
     """
-    動画データ（ツイートの情報を取得したか、ステータスメッセージ、動画URL）を返す
+    動画のURLを取得できなかった場合
+    -ツイートの情報を取得したか、ステータスメッセージを返す
+
+    動画のURLを取得した場合
+    -ツイートの情報を取得したか、ステータスメッセージ、フロントで表示させる動画URL、ダウンロードできるサイズを返す
 
     Arg:
-        tweet_id: ツイートの識別番号
+        tweet_id: ツイートID
     """
     try:
         res = api.statuses_lookup(id_=[tweet_id], tweet_mode="extended")
@@ -57,9 +61,15 @@ def get_video_data(tweet_id):
                     for i in media["video_info"]["variants"]:
                         if i["content_type"] == "video/mp4":
                             video_urls.update({i["bitrate"]: i["url"]})
+
                     display_video_url, download_video_sizes = sorted_data(video_urls)
 
-                    return {"status": True, "message": "動画のURLを取得しました。", "display_video_url": display_video_url, "download_video_sizes": download_video_sizes}
+                    return {
+                        "status": True,
+                        "message": "動画のURLを取得しました。",
+                        "display_video_url": display_video_url,
+                        "download_video_sizes": download_video_sizes
+                    }
 
                 else:
                     return {"status": False, "message": "動画付きツイートではありません。"}
@@ -78,7 +88,7 @@ def get_video_data(tweet_id):
 def sorted_data(data):
     """
     ビットレートの高さでソートしてsmall, medium, large に振り分け、動画のURLをセッションに格納
-    フロントで表示させる動画URLとダウンロードできる動画サイズ（480x270など）を返す
+    フロントで表示させる動画URLとダウンロードできる動画サイズ（480x270）を返す
 
     Arg:
         data(dict):
