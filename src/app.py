@@ -27,17 +27,13 @@ def get_tweet_id(url):
         url: フロントから入力されたURL
     """
     tweet_id = re.findall("https://twitter\.com/.+?/status/(\d+)", url)
-    if len(tweet_id) != 0:
+    if len(tweet_id) > 0:
         return tweet_id[0]
 
 
 def get_video_data(tweet_id):
     """
-    動画のURLを取得できなかった場合
-    -ツイートの情報を取得したか、ステータスメッセージを返す
-
-    動画のURLを取得した場合
-    -ツイートの情報を取得したか、ステータスメッセージ、フロントで表示させる動画URL、ダウンロードできるサイズを返す
+    TwitterAPIを利用して動画のURLを取得する
 
     Arg:
         tweet_id: ツイートID
