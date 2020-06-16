@@ -4,6 +4,7 @@ import re
 import uuid
 import requests
 from io import BytesIO
+from datetime import datetime
 from twython import Twython, TwythonError, TwythonAuthError, TwythonRateLimitError
 from flask import Flask, request, session, jsonify, render_template, send_file, send_from_directory
 
@@ -38,8 +39,17 @@ def get_video_data(tweet_id):
     Arg:
         tweet_id: ツイートID
     """
+    late_limit = {}
     try:
         tweet_data = twitter.lookup_status(id=tweet_id, include_entities=True)
+        late_limit_data = twitter.get_application_rate_limit_status()["resources"]["statuses"]["/statuses/lookup"]
+        reset_time = str(datetime.fromtimestamp(late_limit_data["reset"]))
+        limit = late_limit_data["remaining"]
+        late_limit.update({
+            "remaining": limit,
+            "reset_time": reset_time
+        })
+
     except TwythonAuthError as e:
         print(e)
         return {"status": False, "message": "アプリケーションの認証に何らかの問題があります。"}
@@ -72,17 +82,18 @@ def get_video_data(tweet_id):
                     "status": True,
                     "message": "動画のURLを取得しました。",
                     "display_video_url": display_video_url,
-                    "download_video_sizes": download_video_sizes
+                    "download_video_sizes": download_video_sizes,
+                    "late_limit": late_limit
                 }
 
             else:
-                return {"status": False, "message": "動画付きツイートではありません。"}
+                return {"status": False, "message": "動画付きツイートではありません。", "late_limit": late_limit}
 
         else:
-            return {"status": False, "message": "動画付きツイートではありません。"}
+            return {"status": False, "message": "動画付きツイートではありません。", "late_limit": late_limit}
 
     else:
-        return {"status": False, "message": "ツイートが見つかりませんでした。"}
+        return {"status": False, "message": "ツイートが見つかりませんでした。", "late_limit": late_limit}
 
 
 def sorted_video(video):
