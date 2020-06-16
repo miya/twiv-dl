@@ -4,7 +4,7 @@ import re
 import uuid
 import requests
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from twython import Twython, TwythonError, TwythonAuthError, TwythonRateLimitError
 from flask import Flask, request, session, jsonify, render_template, send_file, send_from_directory
 
@@ -43,13 +43,13 @@ def get_video_data(tweet_id):
     try:
         tweet_data = twitter.lookup_status(id=tweet_id, include_entities=True)
         late_limit_data = twitter.get_application_rate_limit_status()["resources"]["statuses"]["/statuses/lookup"]
-        reset_time = str(datetime.fromtimestamp(late_limit_data["reset"]))
+        jst = timezone(timedelta(hours=+9), "JST")
+        reset_time = str(datetime.fromtimestamp(late_limit_data["reset"], jst))
         limit = late_limit_data["remaining"]
         late_limit.update({
             "remaining": limit,
             "reset_time": reset_time
         })
-
     except TwythonAuthError as e:
         print(e)
         return {"status": False, "message": "アプリケーションの認証に何らかの問題があります。"}
