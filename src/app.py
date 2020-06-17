@@ -1,12 +1,14 @@
-import config
 import os
 import re
 import uuid
-import requests
-from io import BytesIO
 from datetime import datetime, timezone, timedelta
-from twython import Twython, TwythonError, TwythonAuthError, TwythonRateLimitError
+from io import BytesIO
+
+import requests
 from flask import Flask, request, session, jsonify, render_template, send_file, send_from_directory
+from twython import Twython, TwythonError, TwythonAuthError, TwythonRateLimitError
+
+import config
 
 twitter_keys = config.twitter_keys
 twitter = Twython(
@@ -32,6 +34,17 @@ def get_tweet_id(url):
         return tweet_id[0]
 
 
+def get_late_limit():
+    """
+    残りのAPI利用可能回数を取得する
+    """
+    jst = timezone(timedelta(hours=+9), "JST")
+    late_limit_data = twitter.get_application_rate_limit_status()["resources"]["statuses"]["/statuses/lookup"]
+    reset_time = str(datetime.fromtimestamp(late_limit_data["reset"], jst))
+    limit = late_limit_data["remaining"]
+    return {"remaining": limit, "reset_time": reset_time}
+
+
 def get_video_data(tweet_id):
     """
     TwitterAPIを利用して動画のURLを取得する
@@ -39,17 +52,9 @@ def get_video_data(tweet_id):
     Arg:
         tweet_id: ツイートID
     """
-    late_limit = {}
     try:
         tweet_data = twitter.lookup_status(id=tweet_id, include_entities=True)
-        late_limit_data = twitter.get_application_rate_limit_status()["resources"]["statuses"]["/statuses/lookup"]
-        jst = timezone(timedelta(hours=+9), "JST")
-        reset_time = str(datetime.fromtimestamp(late_limit_data["reset"], jst))
-        limit = late_limit_data["remaining"]
-        late_limit.update({
-            "remaining": limit,
-            "reset_time": reset_time
-        })
+        late_limit = get_late_limit()
     except TwythonAuthError as e:
         print(e)
         return {"status": False, "message": "アプリケーションの認証に何らかの問題があります。"}
