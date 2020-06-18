@@ -29,12 +29,12 @@ def get_tweet_id(url):
         return tweet_id[0]
 
 
-def get_late_limit():
+def get_rate_limit():
     """残りのAPI利用可能回数を取得する"""
+    rate_limit_data = twitter.get_application_rate_limit_status()["resources"]["statuses"]["/statuses/lookup"]
     jst = timezone(timedelta(hours=+9), "JST")
-    late_limit_data = twitter.get_application_rate_limit_status()["resources"]["statuses"]["/statuses/lookup"]
-    reset_time = str(datetime.fromtimestamp(late_limit_data["reset"], jst))
-    limit = late_limit_data["remaining"]
+    reset_time = str(datetime.fromtimestamp(rate_limit_data["reset"], jst))
+    limit = rate_limit_data["remaining"]
     return {"remaining": limit, "reset_time": reset_time}
 
 
@@ -42,7 +42,7 @@ def get_video_data(tweet_id):
     """TwitterAPIを利用して動画のURLを取得する"""
     try:
         tweet_data = twitter.lookup_status(id=tweet_id, include_entities=True)
-        late_limit = get_late_limit()
+        rate_limit = get_rate_limit()
     except TwythonAuthError as e:
         print(e)
         return {"status": False, "message": "アプリケーションの認証に何らかの問題があります。"}
@@ -76,17 +76,17 @@ def get_video_data(tweet_id):
                     "message": "動画のURLを取得しました。",
                     "display_video_url": display_video_url,
                     "download_video_sizes": download_video_sizes,
-                    "late_limit": late_limit
+                    "rate_limit": rate_limit
                 }
 
             else:
-                return {"status": False, "message": "動画付きツイートではありません。", "late_limit": late_limit}
+                return {"status": False, "message": "動画付きツイートではありません。", "rate_limit": rate_limit}
 
         else:
-            return {"status": False, "message": "動画付きツイートではありません。", "late_limit": late_limit}
+            return {"status": False, "message": "動画付きツイートではありません。", "rate_limit": rate_limit}
 
     else:
-        return {"status": False, "message": "ツイートが見つかりませんでした。", "late_limit": late_limit}
+        return {"status": False, "message": "ツイートが見つかりませんでした。", "rate_limit": rate_limit}
 
 
 def sorted_video(video):

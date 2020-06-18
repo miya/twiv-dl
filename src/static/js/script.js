@@ -60,8 +60,8 @@ const postData = (url) => {
     })
         .then(response => response.json())
         .then(videoData => {
-            if ("late_limit" in videoData) {
-                console.log(videoData["late_limit"]);
+            if ("rate_limit" in videoData) {
+                console.log(videoData["rate_limit"]);
             }
             const status = videoData["status"];
             const message = videoData["message"];
