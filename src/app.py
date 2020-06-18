@@ -5,8 +5,8 @@ from datetime import datetime, timezone, timedelta
 from io import BytesIO
 
 import requests
-from flask import Flask, request, session, jsonify, render_template, send_file, send_from_directory
 from twython import Twython, TwythonError, TwythonAuthError, TwythonRateLimitError
+from flask import Flask, request, session, jsonify, render_template, send_file, send_from_directory
 
 import config
 
@@ -23,21 +23,14 @@ app.secret_key = config.FLASK_SECRET_KEY
 
 
 def get_tweet_id(url):
-    """
-    フロントで入力されたURLから正規表現を用いてツイートIDを抽出する
-
-    Arg:
-        url: フロントから入力されたURL
-    """
+    """フロントで入力されたURLから正規表現を用いてツイートIDを抽出する"""
     tweet_id = re.findall("https://twitter\.com/.+?/status/(\d+)", url)
     if len(tweet_id) > 0:
         return tweet_id[0]
 
 
 def get_late_limit():
-    """
-    残りのAPI利用可能回数を取得する
-    """
+    """残りのAPI利用可能回数を取得する"""
     jst = timezone(timedelta(hours=+9), "JST")
     late_limit_data = twitter.get_application_rate_limit_status()["resources"]["statuses"]["/statuses/lookup"]
     reset_time = str(datetime.fromtimestamp(late_limit_data["reset"], jst))
@@ -46,12 +39,7 @@ def get_late_limit():
 
 
 def get_video_data(tweet_id):
-    """
-    TwitterAPIを利用して動画のURLを取得する
-
-    Arg:
-        tweet_id: ツイートID
-    """
+    """TwitterAPIを利用して動画のURLを取得する"""
     try:
         tweet_data = twitter.lookup_status(id=tweet_id, include_entities=True)
         late_limit = get_late_limit()
@@ -103,11 +91,8 @@ def get_video_data(tweet_id):
 
 def sorted_video(video):
     """
-    ビットレートの高さでソートしてsmall, medium, large に振り分け、動画のURLをセッションに格納
-    フロントで表示させる動画URLとダウンロードできる動画サイズ（480x270）を返す
-
-    Arg:
-        data(dict):
+    ビットレートの高さでソートしてsmall, medium, largeに振り分け動画のURLをセッションに格納
+    フロントで表示させる動画URLとダウンロードできる動画サイズを返す
     """
     size_label = ["small", "medium", "large"]
     sorted_bitrate = sorted(video)
@@ -122,9 +107,7 @@ def sorted_video(video):
 
 
 def create_file_name():
-    """
-    UUIDを用いてランダムな文字列でファイル名を生成
-    """
+    """UUIDを用いてランダムな文字列でファイル名を生成"""
     return str(uuid.uuid4())[:8] + ".mp4"
 
 
@@ -163,7 +146,7 @@ def page_not_found(error):
 
 
 @app.route("/search", methods=["POST"])
-def post():
+def search():
     if request.headers["Content-Type"] == "application/json":
         input_url = request.json["inputUrl"]
         tweet_id = get_tweet_id(input_url)
