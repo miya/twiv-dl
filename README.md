@@ -1,6 +1,8 @@
 # twiv-dl
 Twitterの動画をダウロードするWebApp
 
+vue.jsで作り直した => [twiv-dl-vue](https://github.com/miya/twiv-dl-vue)
+
 ## Demo
 <img src="https://raw.githubusercontent.com/wiki/miya/twiv-dl/images/demo2.gif" width=100% alt="">
  
